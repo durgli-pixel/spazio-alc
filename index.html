@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d0d0d">
+    <meta name="description" content="Мебельный калькулятор SPAZIO - расчет полок, углов, веса фасадов и петель">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SPAZIO">
+    <title>SPAZIO - Мебельный калькулятор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #222222;
+            --accent-yellow: #FFD700;
+            --accent-yellow-dark: #B8960A;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-dim: #555555;
+            --border-color: #333333;
+            --line-color: #444444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .calc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calc-card:hover {
+            border-color: var(--accent-yellow);
+            transform: translateY(-2px);
+        }
+
+        .calc-card.active {
+            border-color: var(--accent-yellow);
+        }
+
+        .calc-card.coming-soon {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .calc-card.coming-soon:hover {
+            transform: none;
+        }
+
+        .calc-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .calc-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .calc-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: var(--bg-secondary);
+            color: var(--accent-yellow);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            border: 1px solid var(--accent-yellow-dark);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .calculator-container {
+            display: none;
+        }
+
+        .calculator-container.active {
+            display: block;
+        }
+
+        .calculator-wrapper {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .calculator {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .calc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .calc-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+        }
+
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-yellow);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .input-group select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-yellow);
+        }
+
+        .input-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .result-container {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-yellow);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+        }
+
+        .deviation-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .deviation-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .deviation-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+        }
+
+        .copy-btn {
+            background: var(--accent-yellow);
+            border: none;
+            color: var(--bg-primary);
+            padding: 0.9rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-yellow-dark);
+        }
+
+        .copy-btn.copied {
+            background: #4CAF50;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.9rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        .visualization-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+        }
+
+        .schema-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .shelf-schema {
+            position: relative;
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--line-color);
+            border-radius: 4px;
+            padding: 40px 20px 20px 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .angle-schema {
+            position: relative;
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--line-color);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #angleSvg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .outer-panel, .shelf-item, .space-item {
+            position: relative;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 2px;
+        }
+
+        .outer-panel {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .shelf-item {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid var(--text-dim);
+            color: var(--text-secondary);
+        }
+
+        .space-item {
+            background: transparent;
+            border: 1px dashed var(--line-color);
+            color: var(--text-dim);
+        }
+
+        .total-height {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .total-height-line {
+            width: 2px;
+            height: 100%;
+            background: var(--accent-yellow);
+            position: relative;
+        }
+
+        .total-height-line::before,
+        .total-height-line::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: var(--accent-yellow);
+            left: -4px;
+        }
+
+        .total-height-line::before {
+            top: 0;
+        }
+
+        .total-height-line::after {
+            bottom: 0;
+        }
+
+        .total-height-label {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            color: var(--accent-yellow);
+            font-weight: 700;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .legend {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 2px;
+            border: 1px solid;
+        }
+
+        @media (max-width: 1024px) {
+            .calculator-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .visualization-container {
+                margin-top: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-value {
+                font-size: 2rem;
+            }
+
+            .deviation-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SPAZIO</h1>
+            <div class="subtitle">Мебельный калькулятор</div>
+        </header>
+
+        <div id="home" class="calculator-grid">
+            <div class="calc-card active" onclick="showCalculator('shelf')">
+                <div class="calc-icon">📏</div>
+                <div class="calc-title">Калькулятор полок</div>
+                <div class="calc-description">Расчет расстояния между полками</div>
+            </div>
+
+            <div class="calc-card active" onclick="showCalculator('angle')">
+                <div class="calc-icon">📐</div>
+                <div class="calc-title">Калькулятор углов</div>
+                <div class="calc-description">Определение угла между стенами</div>
+            </div>
+
+            <div class="calc-card active" onclick="showCalculator('weight')">
+                <div class="calc-icon">⚖️</div>
+                <div class="calc-title">Калькулятор веса</div>
+                <div class="calc-description">Расчет веса фасадов</div>
+            </div>
+
+            <div class="calc-card active" onclick="showCalculator('hinges')">
+                <div class="calc-icon">🔩</div>
+                <div class="calc-title">Калькулятор петель</div>
+                <div class="calc-description">Расчет количества и расположения</div>
+            </div>
+        </div>
+
+        <!-- SHELF CALCULATOR -->
+        <div id="shelfCalculator" class="calculator-container">
+            <div class="calc-header" style="margin-bottom: 2rem;">
+                <button class="back-btn" onclick="showHome()">← Назад</button>
+                <div class="calc-name">ПОЛКИ</div>
+            </div>
+
+            <div class="calculator-wrapper">
+                <div class="calculator">
+                    <div class="calculator-form">
+                        <div class="input-group">
+                            <label for="sizeX">Размер конструкции, мм</label>
+                            <input type="number" id="sizeX" placeholder="2000" min="0" step="1" oninput="calculateShelves()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="thicknessY">Толщина наружных панелей, мм</label>
+                            <input type="number" id="thicknessY" placeholder="18" min="0" step="1" oninput="calculateShelves()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="thicknessY2">Толщина полок, мм</label>
+                            <input type="number" id="thicknessY2" placeholder="18" min="0" step="1" oninput="calculateShelves()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="shelfCount">Количество полок</label>
+                            <input type="number" id="shelfCount" placeholder="5" min="1" step="1" oninput="calculateShelves()">
+                        </div>
+
+                        <div class="result-container" id="resultContainer" style="display: none;">
+                            <div class="result-label">Расстояние между полками</div>
+                            <div class="result-value" id="resultValue">0 мм</div>
+                            <button class="copy-btn" onclick="copyResult()">
+                                <span id="copyIcon">📋</span>
+                                <span id="copyText">Копировать</span>
+                            </button>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetShelfCalculator()">Очистить</button>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="schema-title">ИНФОРМАЦИЯ</div>
+                    <div style="padding: 2rem;">
+                        <div id="shelfInfoPanel" style="display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                            <div style="color: var(--accent-yellow); font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase;">Параметры конструкции</div>
+                            <div style="display: grid; gap: 1rem;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Размер</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoSize">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Количество полок</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoCount">—</div>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Толщина панелей</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoOuter">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Толщина полок</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoShelf">—</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Расстояние между полками</div>
+                                    <div style="color: var(--accent-yellow); font-size: 1.4rem; font-weight: 700;" id="shelfInfoSpacing">—</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="shelfPlaceholder" style="text-align: center; color: var(--text-secondary); padding: 3rem 2rem;">
+                            Введите параметры для отображения информации
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Формула расчета</div>
+                        <div style="color: var(--text-primary); font-family: 'Space Mono', monospace; font-size: 0.85rem; background: var(--bg-primary); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                            (Размер - 2×Панели - N×Полки) / (N+1)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANGLE CALCULATOR -->
+        <div id="angleCalculator" class="calculator-container">
+            <div class="calc-header" style="margin-bottom: 2rem;">
+                <button class="back-btn" onclick="showHome()">← Назад</button>
+                <div class="calc-name">УГЛЫ</div>
+            </div>
+
+            <div class="calculator-wrapper">
+                <div class="calculator">
+                    <div class="calculator-form">
+                        <div class="input-group">
+                            <label for="sideA">Основная стена (A), мм</label>
+                            <input type="number" id="sideA" placeholder="1000" min="0" step="1" oninput="calculateAngle()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="sideB">Прилегающая стена (B), мм</label>
+                            <input type="number" id="sideB" placeholder="1000" min="0" step="1" oninput="calculateAngle()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="sideC">Диагональ (C), мм</label>
+                            <input type="number" id="sideC" placeholder="1414" min="0" step="1" oninput="calculateAngle()">
+                        </div>
+
+                        <div class="result-container" id="angleResultContainer" style="display: none;">
+                            <div class="result-label">Угол между стенами</div>
+                            <div class="result-value" id="angleValue">90.0°</div>
+                            
+                            <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent-yellow); border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem;">
+                                <div style="color: var(--accent-yellow); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem;" id="angleType">✓ Прямой угол</div>
+                            </div>
+                            
+                            <div class="deviation-container">
+                                <div class="deviation-label">Отклонение от 90°</div>
+                                <div class="deviation-value" id="deviationValue">0.0°</div>
+                            </div>
+
+                            <button class="copy-btn" onclick="copyAngleResult()">
+                                <span id="angleCopyIcon">📋</span>
+                                <span id="angleCopyText">Копировать</span>
+                            </button>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetAngleCalculator()">Очистить</button>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="schema-title">ИНФОРМАЦИЯ</div>
+                    <div style="padding: 2rem;">
+                        <div id="angleInfoPanel" style="display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                            <div style="color: var(--accent-yellow); font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase;">Параметры измерения</div>
+                            <div style="display: grid; gap: 1rem;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Стена A</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="angleInfoA">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Стена B</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="angleInfoB">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Диагональ C</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="angleInfoC">—</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Угол</div>
+                                    <div style="color: var(--accent-yellow); font-size: 1.4rem; font-weight: 700;" id="angleInfoValue">—</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Тип угла</div>
+                                    <div style="color: var(--text-primary); font-size: 1rem; font-weight: 600;" id="angleInfoType">—</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="anglePlaceholder" style="text-align: center; color: var(--text-secondary); padding: 3rem 2rem;">
+                            Введите параметры для отображения информации
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Формула расчета (теорема косинусов)</div>
+                        <div style="color: var(--text-primary); font-family: 'Space Mono', monospace; font-size: 0.85rem; background: var(--bg-primary); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                            cos(θ) = (A² + B² - C²) / (2AB)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEIGHT CALCULATOR -->
+        <div id="weightCalculator" class="calculator-container">
+            <div class="calc-header" style="margin-bottom: 2rem;">
+                <button class="back-btn" onclick="showHome()">← Назад</button>
+                <div class="calc-name">ВЕС ФАСАДОВ</div>
+            </div>
+
+            <div class="calculator-wrapper">
+                <div class="calculator">
+                    <div class="calculator-form">
+                        <div class="input-group">
+                            <label for="facadeLength">Длина, мм</label>
+                            <input type="number" id="facadeLength" placeholder="600" min="0" step="1" oninput="calculateWeight()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="facadeWidth">Ширина, мм</label>
+                            <input type="number" id="facadeWidth" placeholder="400" min="0" step="1" oninput="calculateWeight()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="facadeMaterial">Материал</label>
+                            <select id="facadeMaterial" onchange="calculateWeight()">
+                                <option value="">Выберите материал</option>
+                                <option value="11.70">ЛДСП 18 мм</option>
+                                <option value="12.35">ЛДСП 19 мм</option>
+                                <option value="14.40">МДФ крашенный</option>
+                                <option value="16.00">МДФ шпон</option>
+                                <option value="17.60">МДФ 22 мм</option>
+                                <option value="15.00">АГТ</option>
+                                <option value="18.00">HPL</option>
+                                <option value="9.83">Рамочный алюминий</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="handleWeight">Вес ручки, г</label>
+                            <input type="number" id="handleWeight" placeholder="50" min="0" step="1" oninput="calculateWeight()">
+                        </div>
+
+                        <div class="result-container" id="weightResultContainer" style="display: none;">
+                            <div class="result-label">Общий вес фасада</div>
+                            <div class="result-value" id="weightValue">0 кг</div>
+                            
+                            <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Вес материала:</span>
+                                    <span style="color: var(--text-primary); font-weight: 600;" id="materialWeight">0 кг</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Вес ручки:</span>
+                                    <span style="color: var(--text-primary); font-weight: 600;" id="handleWeightDisplay">0 г</span>
+                                </div>
+                            </div>
+
+                            <button class="copy-btn" onclick="copyWeightResult()">
+                                <span id="weightCopyIcon">📋</span>
+                                <span id="weightCopyText">Копировать</span>
+                            </button>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetWeightCalculator()">Очистить</button>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="schema-title">ИНФОРМАЦИЯ</div>
+                    <div style="padding: 2rem; text-align: center;">
+                        <div id="facadeInfo" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                            Введите параметры фасада для расчета веса
+                        </div>
+                        
+                        <div id="facadeDimensions" style="display: none; margin-top: 2rem; padding: 1.5rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px;">
+                            <div style="color: var(--accent-yellow); font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem;">РАЗМЕРЫ ФАСАДА</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Длина</div>
+                                    <div style="color: var(--text-primary); font-size: 1.2rem; font-weight: 600;" id="displayLength">—</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Ширина</div>
+                                    <div style="color: var(--text-primary); font-size: 1.2rem; font-weight: 600;" id="displayWidth">—</div>
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Площадь</div>
+                                    <div style="color: var(--accent-yellow); font-size: 1.4rem; font-weight: 700;" id="displayArea">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend" style="margin-top: auto;">
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Плотность материалов (кг/м²)</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem;">
+                            <div style="color: var(--text-secondary);">ЛДСП 18: <span style="color: var(--text-primary);">11.70</span></div>
+                            <div style="color: var(--text-secondary);">ЛДСП 19: <span style="color: var(--text-primary);">12.35</span></div>
+                            <div style="color: var(--text-secondary);">МДФ краш.: <span style="color: var(--text-primary);">14.40</span></div>
+                            <div style="color: var(--text-secondary);">МДФ шпон: <span style="color: var(--text-primary);">16.00</span></div>
+                            <div style="color: var(--text-secondary);">МДФ 22: <span style="color: var(--text-primary);">17.60</span></div>
+                            <div style="color: var(--text-secondary);">АГТ: <span style="color: var(--text-primary);">15.00</span></div>
+                            <div style="color: var(--text-secondary);">HPL: <span style="color: var(--text-primary);">18.00</span></div>
+                            <div style="color: var(--text-secondary);">Алюминий: <span style="color: var(--text-primary);">9.83</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HINGES CALCULATOR -->
+        <div id="hingesCalculator" class="calculator-container">
+            <div class="calc-header" style="margin-bottom: 2rem;">
+                <button class="back-btn" onclick="showHome()">← Назад</button>
+                <div class="calc-name">ПЕТЛИ</div>
+            </div>
+
+            <div class="calculator-wrapper">
+                <div class="calculator">
+                    <div class="calculator-form">
+                        <div class="input-group">
+                            <label for="hingeFacadeLength">Длина фасада, мм</label>
+                            <input type="number" id="hingeFacadeLength" placeholder="2800" min="0" max="2800" step="1" oninput="calculateHinges()">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.3rem;">Максимум: 2800 мм</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="hingeFacadeWidth">Ширина фасада, мм</label>
+                            <input type="number" id="hingeFacadeWidth" placeholder="700" min="0" max="700" step="1" oninput="calculateHinges()">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.3rem;">Максимум: 700 мм</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="hingeMaterial">Материал</label>
+                            <select id="hingeMaterial" onchange="calculateHinges()">
+                                <option value="">Выберите материал</option>
+                                <option value="11.70">ЛДСП 18 мм</option>
+                                <option value="12.35">ЛДСП 19 мм</option>
+                                <option value="14.40">МДФ крашенный</option>
+                                <option value="16.00">МДФ шпон</option>
+                                <option value="17.60">МДФ 22 мм</option>
+                                <option value="15.00">АГТ</option>
+                                <option value="18.00">HPL</option>
+                                <option value="9.83">Рамочный алюминий</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="hingeHandleWeight">Вес ручки, г</label>
+                            <input type="number" id="hingeHandleWeight" placeholder="50" min="0" step="1" value="50" oninput="calculateHinges()">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="hingeTopOffset">Отступ от края, мм</label>
+                            <input type="number" id="hingeTopOffset" placeholder="100" min="50" max="200" step="1" value="100" oninput="calculateHinges()">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.3rem;">Рекомендуется: 100-150 мм</div>
+                        </div>
+
+                        <div class="result-container" id="hingesResultContainer" style="display: none;">
+                            <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent-yellow); border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="color: var(--accent-yellow); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">Вес фасада</div>
+                                <div style="color: var(--text-primary); font-size: 1.8rem; font-weight: 700;" id="calculatedWeight">0 кг</div>
+                            </div>
+
+                            <div class="result-label">Количество петель</div>
+                            <div class="result-value" id="hingesValue">0 шт</div>
+                            
+                            <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Нагрузка на петлю:</span>
+                                    <span style="color: var(--text-primary); font-weight: 600;" id="hingeLoad">0 кг</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Расстояние между петлями:</span>
+                                    <span style="color: var(--text-primary); font-weight: 600;" id="hingeSpacing">0 мм</span>
+                                </div>
+                            </div>
+
+                            <div id="hingePositions" style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent-yellow); border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="color: var(--accent-yellow); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.8rem;">Расположение петель:</div>
+                                <div id="hingePositionsList" style="color: var(--text-primary); font-size: 0.9rem; line-height: 1.8;"></div>
+                            </div>
+
+                            <button class="copy-btn" onclick="copyHingesResult()">
+                                <span id="hingesCopyIcon">📋</span>
+                                <span id="hingesCopyText">Копировать</span>
+                            </button>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetHingesCalculator()">Очистить</button>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="schema-title">ИНФОРМАЦИЯ</div>
+                    <div style="padding: 2rem;">
+                        <div id="hingesInfoPanel" style="display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                            <div style="color: var(--accent-yellow); font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase;">Параметры фасада</div>
+                            <div style="display: grid; gap: 1rem;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Длина</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="hingeInfoLength">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Ширина</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="hingeInfoWidth">—</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Площадь</div>
+                                    <div style="color: var(--accent-yellow); font-size: 1.2rem; font-weight: 700;" id="hingeInfoArea">—</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Материал</div>
+                                    <div style="color: var(--text-primary); font-size: 1rem; font-weight: 600;" id="hingeInfoMaterial">—</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;">Рекомендация</div>
+                                    <div style="color: var(--accent-yellow); font-size: 0.95rem; font-weight: 600;" id="hingeRecommendation">—</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="hingesPlaceholder" style="text-align: center; color: var(--text-secondary); padding: 3rem 2rem;">
+                            Введите параметры для расчета петель
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Правила расчета</div>
+                        <div style="color: var(--text-primary); font-size: 0.8rem; line-height: 1.8; background: var(--bg-primary); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                            • До 1000 мм: 2 петли<br>
+                            • 1000-1500 мм: 3 петли<br>
+                            • 1500-2000 мм: 4 петли<br>
+                            • 2000-2500 мм: 5 петель<br>
+                            • Макс. расстояние: 400-600 мм<br>
+                            • Отступ от края: 100-150 мм
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showCalculator(type) {
+            if (type === 'shelf') {
+                document.getElementById('home').style.display = 'none';
+                document.getElementById('shelfCalculator').classList.add('active');
+                loadSavedValues();
+            } else if (type === 'angle') {
+                document.getElementById('home').style.display = 'none';
+                document.getElementById('angleCalculator').classList.add('active');
+                loadAngleSavedValues();
+            } else if (type === 'weight') {
+                document.getElementById('home').style.display = 'none';
+                document.getElementById('weightCalculator').classList.add('active');
+                loadWeightSavedValues();
+            } else if (type === 'hinges') {
+                document.getElementById('home').style.display = 'none';
+                document.getElementById('hingesCalculator').classList.add('active');
+                loadHingesSavedValues();
+            }
+        }
+
+        function showHome() {
+            document.getElementById('home').style.display = 'grid';
+            document.getElementById('shelfCalculator').classList.remove('active');
+            document.getElementById('angleCalculator').classList.remove('active');
+            document.getElementById('weightCalculator').classList.remove('active');
+            document.getElementById('hingesCalculator').classList.remove('active');
+        }
+
+        // SHELF CALCULATOR
+        function saveValues() {
+            const values = {
+                sizeX: document.getElementById('sizeX').value,
+                thicknessY: document.getElementById('thicknessY').value,
+                thicknessY2: document.getElementById('thicknessY2').value,
+                shelfCount: document.getElementById('shelfCount').value
+            };
+            localStorage.setItem('spazio_shelf_calc', JSON.stringify(values));
+        }
+
+        function loadSavedValues() {
+            const saved = localStorage.getItem('spazio_shelf_calc');
+            if (saved) {
+                try {
+                    const values = JSON.parse(saved);
+                    document.getElementById('sizeX').value = values.sizeX || '';
+                    document.getElementById('thicknessY').value = values.thicknessY || '';
+                    document.getElementById('thicknessY2').value = values.thicknessY2 || '';
+                    document.getElementById('shelfCount').value = values.shelfCount || '';
+                    calculateShelves();
+                } catch (e) {
+                    console.error('Error loading saved values:', e);
+                }
+            }
+        }
+
+        function calculateShelves() {
+            const sizeX = parseFloat(document.getElementById('sizeX').value) || 0;
+            const thicknessY = parseFloat(document.getElementById('thicknessY').value) || 0;
+            const thicknessY2 = parseFloat(document.getElementById('thicknessY2').value) || 0;
+            const shelfCount = parseInt(document.getElementById('shelfCount').value) || 0;
+
+            saveValues();
+
+            if (sizeX > 0 && thicknessY > 0 && thicknessY2 > 0 && shelfCount > 0) {
+                const result = (sizeX - 2 * thicknessY - shelfCount * thicknessY2) / (shelfCount + 1);
+                
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultValue').textContent = result.toFixed(1) + ' мм';
+                
+                // Show info panel
+                document.getElementById('shelfInfoPanel').style.display = 'block';
+                document.getElementById('shelfPlaceholder').style.display = 'none';
+                document.getElementById('shelfInfoSize').textContent = sizeX + ' мм';
+                document.getElementById('shelfInfoCount').textContent = shelfCount + ' шт';
+                document.getElementById('shelfInfoOuter').textContent = thicknessY + ' мм';
+                document.getElementById('shelfInfoShelf').textContent = thicknessY2 + ' мм';
+                document.getElementById('shelfInfoSpacing').textContent = result.toFixed(1) + ' мм';
+            } else {
+                document.getElementById('resultContainer').style.display = 'none';
+                document.getElementById('shelfInfoPanel').style.display = 'none';
+                document.getElementById('shelfPlaceholder').style.display = 'block';
+            }
+        }
+
+        function drawSchema(totalHeight, outerThickness, shelfThickness, shelfCount, spacing) {
+            const schemaContent = document.getElementById('schemaContent');
+            const totalHeightLabel = document.getElementById('totalHeightLabel');
+            
+            totalHeightLabel.textContent = totalHeight + ' мм';
+            
+            let html = '';
+            const totalPx = 500;
+            const scale = totalPx / totalHeight;
+            
+            const outerPx = Math.max(outerThickness * scale, 20);
+            // Top outer panel - WHITE
+            html += `<div class="outer-panel" style="height: ${outerPx}px; background: rgba(255, 255, 255, 0.05); border-color: #888888;"><span style="color: #888888;">${outerThickness} мм</span></div>`;
+            
+            const spacePx = Math.max(spacing * scale, 25);
+            const shelfPx = Math.max(shelfThickness * scale, 18);
+            
+            for (let i = 0; i <= shelfCount; i++) {
+                // Highlight spacing with yellow
+                html += `<div class="outer-panel" style="height: ${spacePx}px; background: rgba(255, 215, 0, 0.15); border-color: var(--accent-yellow);"><span style="color: var(--accent-yellow); font-weight: 700;">${spacing.toFixed(1)} мм</span></div>`;
+                
+                if (i < shelfCount) {
+                    // Shelves are dim
+                    html += `<div class="shelf-item" style="height: ${shelfPx}px;"><span>${shelfThickness} мм</span></div>`;
+                }
+            }
+            
+            // Bottom outer panel - WHITE
+            html += `<div class="outer-panel" style="height: ${outerPx}px; background: rgba(255, 255, 255, 0.05); border-color: #888888;"><span style="color: #888888;">${outerThickness} мм</span></div>`;
+            
+            schemaContent.innerHTML = html;
+        }
+
+        function copyResult() {
+            const resultValue = document.getElementById('resultValue').textContent;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(resultValue).then(() => {
+                    showCopySuccess();
+                }).catch(() => {
+                    fallbackCopy(resultValue);
+                });
+            } else {
+                fallbackCopy(resultValue);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.top = '0';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    alert('Скопируйте результат: ' + text);
+                }
+            } catch (err) {
+                alert('Скопируйте результат: ' + text);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        function showCopySuccess() {
+            const copyBtn = document.querySelector('#shelfCalculator .copy-btn');
+            const copyIcon = document.getElementById('copyIcon');
+            const copyText = document.getElementById('copyText');
+            
+            copyBtn.classList.add('copied');
+            copyIcon.textContent = '✓';
+            copyText.textContent = 'Скопировано!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.textContent = '📋';
+                copyText.textContent = 'Копировать';
+            }, 2000);
+        }
+
+        function resetShelfCalculator() {
+            document.getElementById('sizeX').value = '';
+            document.getElementById('thicknessY').value = '';
+            document.getElementById('thicknessY2').value = '';
+            document.getElementById('shelfCount').value = '';
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('schemaContent').innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 2rem;">Введите параметры для отображения схемы</div>';
+        }
+
+        // ANGLE CALCULATOR
+        function saveAngleValues() {
+            const values = {
+                sideA: document.getElementById('sideA').value,
+                sideB: document.getElementById('sideB').value,
+                sideC: document.getElementById('sideC').value
+            };
+            localStorage.setItem('spazio_angle_calc', JSON.stringify(values));
+        }
+
+        function loadAngleSavedValues() {
+            const saved = localStorage.getItem('spazio_angle_calc');
+            if (saved) {
+                try {
+                    const values = JSON.parse(saved);
+                    document.getElementById('sideA').value = values.sideA || '';
+                    document.getElementById('sideB').value = values.sideB || '';
+                    document.getElementById('sideC').value = values.sideC || '';
+                    calculateAngle();
+                } catch (e) {
+                    console.error('Error loading saved values:', e);
+                }
+            }
+        }
+
+        function calculateAngle() {
+            const A = parseFloat(document.getElementById('sideA').value) || 0;
+            const B = parseFloat(document.getElementById('sideB').value) || 0;
+            const C = parseFloat(document.getElementById('sideC').value) || 0;
+
+            saveAngleValues();
+
+            if (A > 0 && B > 0 && C > 0) {
+                if (A + B <= C || A + C <= B || B + C <= A) {
+                    document.getElementById('angleResultContainer').style.display = 'none';
+                    document.getElementById('angleInfoPanel').style.display = 'none';
+                    document.getElementById('anglePlaceholder').style.display = 'block';
+                    alert('Ошибка: с такими размерами невозможно построить треугольник');
+                    return;
+                }
+
+                const cosTheta = (A * A + B * B - C * C) / (2 * A * B);
+                const thetaRad = Math.acos(cosTheta);
+                const thetaDeg = thetaRad * (180 / Math.PI);
+                const deviation = Math.abs(thetaDeg - 90);
+                
+                let angleType = '';
+                let angleIcon = '';
+                
+                if (thetaDeg === 90) {
+                    angleType = 'Прямой угол';
+                    angleIcon = '✓';
+                } else if (thetaDeg <= 89) {
+                    angleType = 'Острый угол';
+                    angleIcon = '◂';
+                } else if (thetaDeg >= 91) {
+                    angleType = 'Тупой угол';
+                    angleIcon = '▸';
+                } else {
+                    angleType = 'Почти прямой угол';
+                    angleIcon = '≈';
+                }
+                
+                const deviationSign = thetaDeg > 90 ? '+' : (thetaDeg < 90 ? '−' : '');
+
+                document.getElementById('angleResultContainer').style.display = 'block';
+                document.getElementById('angleValue').textContent = thetaDeg.toFixed(1) + '°';
+                document.getElementById('deviationValue').textContent = deviationSign + deviation.toFixed(1) + '° от 90°';
+                document.getElementById('angleType').textContent = angleIcon + ' ' + angleType;
+                
+                // Show info panel
+                document.getElementById('angleInfoPanel').style.display = 'block';
+                document.getElementById('anglePlaceholder').style.display = 'none';
+                document.getElementById('angleInfoA').textContent = A + ' мм';
+                document.getElementById('angleInfoB').textContent = B + ' мм';
+                document.getElementById('angleInfoC').textContent = C + ' мм';
+                document.getElementById('angleInfoValue').textContent = thetaDeg.toFixed(1) + '°';
+                document.getElementById('angleInfoType').textContent = angleIcon + ' ' + angleType;
+            } else {
+                document.getElementById('angleResultContainer').style.display = 'none';
+                document.getElementById('angleInfoPanel').style.display = 'none';
+                document.getElementById('anglePlaceholder').style.display = 'block';
+            }
+        }
+
+        function drawTriangle(A, B, C, angle) {
+            const svg = document.getElementById('angleSvg');
+            const maxSize = Math.max(A, B, C);
+            const scale = 200 / maxSize;
+            
+            const centerX = 200;
+            const centerY = 260;
+            
+            // Triangle points
+            const x1 = centerX - (A * scale) / 2; // bottom left
+            const y1 = centerY;
+            const x2 = centerX + (A * scale) / 2; // bottom right
+            const y2 = centerY;
+            const x3 = x1; // top
+            const y3 = centerY - (B * scale);
+
+            const offset = 40; // distance from triangle to dimension line
+            const textOffset = offset / 2; // text at halfway point
+
+            // Calculate angle for hypotenuse
+            const dx = x3 - x2;
+            const dy = y3 - y2;
+            const hypotenuseAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            let svgContent = `
+                <!-- Yellow triangle outline only (like reference) -->
+                <polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" 
+                         fill="none" 
+                         stroke="#FFD700" 
+                         stroke-width="3" />
+                
+                <!-- Angle value inside triangle -->
+                <text x="${x1 + 50}" y="${y1 - 30}" 
+                      text-anchor="middle" 
+                      fill="#FFD700" 
+                      font-size="18" 
+                      font-weight="600" 
+                      font-family="Inter">${angle.toFixed(1)}°</text>
+                
+                <!-- Dimension line A (bottom) -->
+                <line x1="${x1}" y1="${y1 + offset}" x2="${x2}" y2="${y2 + offset}" stroke="#666666" stroke-width="1" />
+                <line x1="${x1}" y1="${y1 + offset - 5}" x2="${x1}" y2="${y1 + offset + 5}" stroke="#666666" stroke-width="1" />
+                <line x1="${x2}" y1="${y2 + offset - 5}" x2="${x2}" y2="${y2 + offset + 5}" stroke="#666666" stroke-width="1" />
+                <text x="${(x1 + x2) / 2}" y="${y1 + offset - 8}" 
+                      text-anchor="middle" 
+                      fill="#CCCCCC" 
+                      font-size="15" 
+                      font-weight="400" 
+                      font-family="Inter">${A}</text>
+                
+                <!-- Dimension line B (left) -->
+                <line x1="${x1 - offset}" y1="${y1}" x2="${x3 - offset}" y2="${y3}" stroke="#666666" stroke-width="1" />
+                <line x1="${x1 - offset - 5}" y1="${y1}" x2="${x1 - offset + 5}" y2="${y1}" stroke="#666666" stroke-width="1" />
+                <line x1="${x3 - offset - 5}" y1="${y3}" x2="${x3 - offset + 5}" y2="${y3}" stroke="#666666" stroke-width="1" />
+                <text x="${x1 - offset - 15}" y="${(y1 + y3) / 2}" 
+                      text-anchor="middle" 
+                      fill="#CCCCCC" 
+                      font-size="15" 
+                      font-weight="400" 
+                      font-family="Inter" 
+                      transform="rotate(-90, ${x1 - offset - 15}, ${(y1 + y3) / 2})">${B}</text>
+                
+                <!-- Dimension line C (hypotenuse) -->
+                ${(() => {
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const perpX = -dy / length * offset;
+                    const perpY = dx / length * offset;
+                    
+                    const c1x = x2 + perpX;
+                    const c1y = y2 + perpY;
+                    const c2x = x3 + perpX;
+                    const c2y = y3 + perpY;
+                    
+                    const tickLen = 5;
+                    const tickPerpX = -dy / length * tickLen;
+                    const tickPerpY = dx / length * tickLen;
+                    
+                    // Text further from triangle (outside)
+                    const textPerpX = -dy / length * (offset + 10);
+                    const textPerpY = dx / length * (offset + 10);
+                    const textX = (x2 + x3) / 2 + textPerpX;
+                    const textY = (y2 + y3) / 2 + textPerpY;
+                    
+                    let textAngle = hypotenuseAngle;
+                    if (textAngle < -90 || textAngle > 90) {
+                        textAngle += 180;
+                    }
+                    
+                    return `
+                        <line x1="${c1x}" y1="${c1y}" x2="${c2x}" y2="${c2y}" stroke="#666666" stroke-width="1" />
+                        <line x1="${c1x - tickPerpX}" y1="${c1y - tickPerpY}" x2="${c1x + tickPerpX}" y2="${c1y + tickPerpY}" stroke="#666666" stroke-width="1" />
+                        <line x1="${c2x - tickPerpX}" y1="${c2y - tickPerpY}" x2="${c2x + tickPerpX}" y2="${c2y + tickPerpY}" stroke="#666666" stroke-width="1" />
+                        <text x="${textX}" y="${textY}" 
+                              text-anchor="middle" 
+                              fill="#CCCCCC" 
+                              font-size="15" 
+                              font-weight="400" 
+                              font-family="Inter" 
+                              transform="rotate(${textAngle}, ${textX}, ${textY})">${C}</text>
+                    `;
+                })()}
+            `;
+
+            svg.innerHTML = svgContent;
+        }
+
+        function resetTriangle() {
+            const svg = document.getElementById('angleSvg');
+            svg.innerHTML = `
+                <text x="200" y="175" text-anchor="middle" fill="#555555" font-size="14" font-family="Inter">
+                    Введите параметры для отображения
+                </text>
+            `;
+        }
+
+        function copyAngleResult() {
+            const angleValue = document.getElementById('angleValue').textContent;
+            const deviationValue = document.getElementById('deviationValue').textContent;
+            const textToCopy = `Угол: ${angleValue}, Отклонение: ${deviationValue}`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showAngleCopySuccess();
+                }).catch(() => {
+                    fallbackAngleCopy(textToCopy);
+                });
+            } else {
+                fallbackAngleCopy(textToCopy);
+            }
+        }
+
+        function fallbackAngleCopy(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.top = '0';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showAngleCopySuccess();
+                } else {
+                    alert('Скопируйте результат: ' + text);
+                }
+            } catch (err) {
+                alert('Скопируйте результат: ' + text);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        function showAngleCopySuccess() {
+            const copyBtn = document.querySelector('#angleCalculator .copy-btn');
+            const copyIcon = document.getElementById('angleCopyIcon');
+            const copyText = document.getElementById('angleCopyText');
+            
+            copyBtn.classList.add('copied');
+            copyIcon.textContent = '✓';
+            copyText.textContent = 'Скопировано!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.textContent = '📋';
+                copyText.textContent = 'Копировать';
+            }, 2000);
+        }
+
+        function resetAngleCalculator() {
+            document.getElementById('sideA').value = '';
+            document.getElementById('sideB').value = '';
+            document.getElementById('sideC').value = '';
+            document.getElementById('angleResultContainer').style.display = 'none';
+            resetTriangle();
+        }
+
+        // WEIGHT CALCULATOR
+        function saveWeightValues() {
+            const values = {
+                facadeLength: document.getElementById('facadeLength').value,
+                facadeWidth: document.getElementById('facadeWidth').value,
+                facadeMaterial: document.getElementById('facadeMaterial').value,
+                handleWeight: document.getElementById('handleWeight').value
+            };
+            localStorage.setItem('spazio_weight_calc', JSON.stringify(values));
+        }
+
+        function loadWeightSavedValues() {
+            const saved = localStorage.getItem('spazio_weight_calc');
+            if (saved) {
+                try {
+                    const values = JSON.parse(saved);
+                    document.getElementById('facadeLength').value = values.facadeLength || '';
+                    document.getElementById('facadeWidth').value = values.facadeWidth || '';
+                    document.getElementById('facadeMaterial').value = values.facadeMaterial || '';
+                    document.getElementById('handleWeight').value = values.handleWeight || '';
+                    calculateWeight();
+                } catch (e) {
+                    console.error('Error loading saved values:', e);
+                }
+            }
+        }
+
+        function calculateWeight() {
+            const length = parseFloat(document.getElementById('facadeLength').value) || 0;
+            const width = parseFloat(document.getElementById('facadeWidth').value) || 0;
+            const materialDensity = parseFloat(document.getElementById('facadeMaterial').value) || 0;
+            const handleWeight = parseFloat(document.getElementById('handleWeight').value) || 0;
+
+            saveWeightValues();
+
+            if (length > 0 && width > 0 && materialDensity > 0) {
+                // Calculate area in m²
+                const areaM2 = (length * width) / 1000000;
+                
+                // Calculate material weight in kg
+                const materialWeightKg = areaM2 * materialDensity;
+                
+                // Convert handle weight from grams to kg
+                const handleWeightKg = handleWeight / 1000;
+                
+                // Total weight
+                const totalWeight = materialWeightKg + handleWeightKg;
+
+                // Display results
+                document.getElementById('weightResultContainer').style.display = 'block';
+                document.getElementById('weightValue').textContent = totalWeight.toFixed(2) + ' кг';
+                document.getElementById('materialWeight').textContent = materialWeightKg.toFixed(2) + ' кг';
+                document.getElementById('handleWeightDisplay').textContent = handleWeight + ' г';
+
+                // Display dimensions info
+                document.getElementById('facadeDimensions').style.display = 'block';
+                document.getElementById('displayLength').textContent = length + ' мм';
+                document.getElementById('displayWidth').textContent = width + ' мм';
+                document.getElementById('displayArea').textContent = areaM2.toFixed(4) + ' м²';
+                document.getElementById('facadeInfo').style.display = 'none';
+            } else {
+                document.getElementById('weightResultContainer').style.display = 'none';
+                document.getElementById('facadeDimensions').style.display = 'none';
+                document.getElementById('facadeInfo').style.display = 'block';
+            }
+        }
+
+        function copyWeightResult() {
+            const weightValue = document.getElementById('weightValue').textContent;
+            const materialWeight = document.getElementById('materialWeight').textContent;
+            const handleWeight = document.getElementById('handleWeightDisplay').textContent;
+            const textToCopy = `Общий вес: ${weightValue}\nМатериал: ${materialWeight}\nРучка: ${handleWeight}`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showWeightCopySuccess();
+                }).catch(() => {
+                    fallbackWeightCopy(textToCopy);
+                });
+            } else {
+                fallbackWeightCopy(textToCopy);
+            }
+        }
+
+        function fallbackWeightCopy(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.top = '0';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showWeightCopySuccess();
+                } else {
+                    alert('Скопируйте результат: ' + text);
+                }
+            } catch (err) {
+                alert('Скопируйте результат: ' + text);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        function showWeightCopySuccess() {
+            const copyBtn = document.querySelector('#weightCalculator .copy-btn');
+            const copyIcon = document.getElementById('weightCopyIcon');
+            const copyText = document.getElementById('weightCopyText');
+            
+            copyBtn.classList.add('copied');
+            copyIcon.textContent = '✓';
+            copyText.textContent = 'Скопировано!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.textContent = '📋';
+                copyText.textContent = 'Копировать';
+            }, 2000);
+        }
+
+        function resetWeightCalculator() {
+            document.getElementById('facadeLength').value = '';
+            document.getElementById('facadeWidth').value = '';
+            document.getElementById('facadeMaterial').value = '';
+            document.getElementById('handleWeight').value = '';
+            document.getElementById('weightResultContainer').style.display = 'none';
+            document.getElementById('facadeDimensions').style.display = 'none';
+            document.getElementById('facadeInfo').style.display = 'block';
+        }
+
+        // HINGES CALCULATOR
+        function saveHingesValues() {
+            const values = {
+                hingeFacadeLength: document.getElementById('hingeFacadeLength').value,
+                hingeFacadeWidth: document.getElementById('hingeFacadeWidth').value,
+                hingeMaterial: document.getElementById('hingeMaterial').value,
+                hingeHandleWeight: document.getElementById('hingeHandleWeight').value,
+                hingeTopOffset: document.getElementById('hingeTopOffset').value
+            };
+            localStorage.setItem('spazio_hinges_calc', JSON.stringify(values));
+        }
+
+        function loadHingesSavedValues() {
+            const saved = localStorage.getItem('spazio_hinges_calc');
+            if (saved) {
+                try {
+                    const values = JSON.parse(saved);
+                    document.getElementById('hingeFacadeLength').value = values.hingeFacadeLength || '';
+                    document.getElementById('hingeFacadeWidth').value = values.hingeFacadeWidth || '';
+                    document.getElementById('hingeMaterial').value = values.hingeMaterial || '';
+                    document.getElementById('hingeHandleWeight').value = values.hingeHandleWeight || '50';
+                    document.getElementById('hingeTopOffset').value = values.hingeTopOffset || '100';
+                    calculateHinges();
+                } catch (e) {
+                    console.error('Error loading saved values:', e);
+                }
+            }
+        }
+
+        function calculateHinges() {
+            const length = parseFloat(document.getElementById('hingeFacadeLength').value) || 0;
+            const width = parseFloat(document.getElementById('hingeFacadeWidth').value) || 0;
+            const materialDensity = parseFloat(document.getElementById('hingeMaterial').value) || 0;
+            const handleWeight = parseFloat(document.getElementById('hingeHandleWeight').value) || 0;
+            const offset = parseFloat(document.getElementById('hingeTopOffset').value) || 100;
+
+            saveHingesValues();
+
+            // Check max dimensions
+            if (length > 2800) {
+                alert('⚠️ Максимальная длина фасада: 2800 мм');
+                document.getElementById('hingeFacadeLength').value = 2800;
+                return;
+            }
+            if (width > 700) {
+                alert('⚠️ Максимальная ширина фасада: 700 мм');
+                document.getElementById('hingeFacadeWidth').value = 700;
+                return;
+            }
+
+            if (length > 0 && width > 0 && materialDensity > 0) {
+                // Calculate weight (same as weight calculator)
+                const areaM2 = (length * width) / 1000000;
+                const materialWeightKg = areaM2 * materialDensity;
+                const handleWeightKg = handleWeight / 1000;
+                const totalWeight = materialWeightKg + handleWeightKg;
+
+                // Use length as height for hinge calculation
+                const height = length;
+
+                // Determine number of hinges based on height
+                let hingeCount = 2;
+                if (height > 2000) {
+                    hingeCount = 5;
+                } else if (height > 1500) {
+                    hingeCount = 4;
+                } else if (height > 1000) {
+                    hingeCount = 3;
+                }
+
+                // Increase hinges for heavy facades
+                if (totalWeight > 20) {
+                    hingeCount = Math.max(hingeCount, 4);
+                } else if (totalWeight > 15) {
+                    hingeCount = Math.max(hingeCount, 3);
+                }
+
+                // Calculate load per hinge
+                const loadPerHinge = totalWeight / hingeCount;
+
+                // Calculate positions
+                const positions = [];
+                const workingHeight = height - (2 * offset);
+                
+                if (hingeCount === 2) {
+                    positions.push(offset);
+                    positions.push(height - offset);
+                } else {
+                    const spacing = workingHeight / (hingeCount - 1);
+                    for (let i = 0; i < hingeCount; i++) {
+                        positions.push(offset + (spacing * i));
+                    }
+                }
+
+                // Calculate spacing between hinges
+                const spacing = positions.length > 1 ? positions[1] - positions[0] : 0;
+
+                // Check if spacing is within recommended range
+                let recommendation = '';
+                if (spacing > 600) {
+                    recommendation = '⚠️ Расстояние превышает 600 мм - рекомендуется больше петель';
+                } else if (spacing < 400 && hingeCount > 2) {
+                    recommendation = '✓ Оптимальное расстояние между петлями';
+                } else {
+                    recommendation = '✓ Расстояние в пределах нормы';
+                }
+
+                // Get material name
+                const materialSelect = document.getElementById('hingeMaterial');
+                const materialName = materialSelect.options[materialSelect.selectedIndex].text;
+
+                // Display results
+                document.getElementById('hingesResultContainer').style.display = 'block';
+                document.getElementById('calculatedWeight').textContent = totalWeight.toFixed(2) + ' кг';
+                document.getElementById('hingesValue').textContent = hingeCount + ' шт';
+                document.getElementById('hingeLoad').textContent = loadPerHinge.toFixed(1) + ' кг';
+                document.getElementById('hingeSpacing').textContent = Math.round(spacing) + ' мм';
+
+                // Display positions
+                let positionsHTML = '';
+                positions.forEach((pos, index) => {
+                    positionsHTML += `<div style="display: flex; justify-content: space-between; padding: 0.3rem 0;">
+                        <span>Петля ${index + 1}:</span>
+                        <span style="font-weight: 600;">${Math.round(pos)} мм от верха</span>
+                    </div>`;
+                });
+                document.getElementById('hingePositionsList').innerHTML = positionsHTML;
+
+                // Display info panel
+                document.getElementById('hingesInfoPanel').style.display = 'block';
+                document.getElementById('hingesPlaceholder').style.display = 'none';
+                document.getElementById('hingeInfoLength').textContent = length + ' мм';
+                document.getElementById('hingeInfoWidth').textContent = width + ' мм';
+                document.getElementById('hingeInfoArea').textContent = areaM2.toFixed(4) + ' м²';
+                document.getElementById('hingeInfoMaterial').textContent = materialName;
+                document.getElementById('hingeRecommendation').textContent = recommendation;
+            } else {
+                document.getElementById('hingesResultContainer').style.display = 'none';
+                document.getElementById('hingesInfoPanel').style.display = 'none';
+                document.getElementById('hingesPlaceholder').style.display = 'block';
+            }
+        }
+
+        function copyHingesResult() {
+            const hingesValue = document.getElementById('hingesValue').textContent;
+            const hingeLoad = document.getElementById('hingeLoad').textContent;
+            const hingeSpacing = document.getElementById('hingeSpacing').textContent;
+            const positions = document.getElementById('hingePositionsList').innerText;
+            const textToCopy = `Количество петель: ${hingesValue}\nНагрузка на петлю: ${hingeLoad}\nРасстояние: ${hingeSpacing}\n\nРасположение:\n${positions}`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showHingesCopySuccess();
+                }).catch(() => {
+                    fallbackHingesCopy(textToCopy);
+                });
+            } else {
+                fallbackHingesCopy(textToCopy);
+            }
+        }
+
+        function fallbackHingesCopy(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.top = '0';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showHingesCopySuccess();
+                } else {
+                    alert('Скопируйте результат: ' + text);
+                }
+            } catch (err) {
+                alert('Скопируйте результат: ' + text);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        function showHingesCopySuccess() {
+            const copyBtn = document.querySelector('#hingesCalculator .copy-btn');
+            const copyIcon = document.getElementById('hingesCopyIcon');
+            const copyText = document.getElementById('hingesCopyText');
+            
+            copyBtn.classList.add('copied');
+            copyIcon.textContent = '✓';
+            copyText.textContent = 'Скопировано!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.textContent = '📋';
+                copyText.textContent = 'Копировать';
+            }, 2000);
+        }
+
+        function resetHingesCalculator() {
+            document.getElementById('hingeFacadeLength').value = '';
+            document.getElementById('hingeFacadeWidth').value = '';
+            document.getElementById('hingeMaterial').value = '';
+            document.getElementById('hingeHandleWeight').value = '50';
+            document.getElementById('hingeTopOffset').value = '100';
+            document.getElementById('hingesResultContainer').style.display = 'none';
+            document.getElementById('hingesInfoPanel').style.display = 'none';
+            document.getElementById('hingesPlaceholder').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
