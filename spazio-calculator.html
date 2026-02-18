@@ -933,6 +933,40 @@
             }
         }
     </style>
+    
+    <!-- Firebase Analytics -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVoC8Jo7r2tXSn4CPPv9FAhPA0dcuHfWs",
+            authDomain: "spazio-calc.firebaseapp.com",
+            projectId: "spazio-calc",
+            storageBucket: "spazio-calc.firebasestorage.app",
+            messagingSenderId: "975475103033",
+            appId: "1:975475103033:web:36755129396ac75f9604e8",
+            measurementId: "G-QYWX28CSYD"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        
+        // Make analytics available globally for tracking events
+        window.firebaseAnalytics = analytics;
+        window.logAnalyticsEvent = logEvent;
+        
+        // Track page view
+        logEvent(analytics, 'page_view', {
+            page_title: 'SPAZIO Calculator',
+            page_location: window.location.href
+        });
+        
+        console.log('✅ Firebase Analytics initialized');
+    </script>
 </head>
 <body>
     <!-- Subscription Modal -->
@@ -1198,9 +1232,15 @@
                                         <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoShelf">—</div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;" id="shelfInfoSpacingLabel">Расстояние между полками</div>
-                                    <div style="color: var(--accent-yellow); font-size: 1.4rem; font-weight: 700;" id="shelfInfoSpacing">—</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;" id="shelfInfoDistancesLabel">Количество расстояний</div>
+                                        <div style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600;" id="shelfInfoDistances">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.3rem;" id="shelfInfoSpacingLabel">Расстояние между полками</div>
+                                        <div style="color: var(--accent-yellow); font-size: 1.4rem; font-weight: 700;" id="shelfInfoSpacing">—</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1660,6 +1700,7 @@
                 shelfInfoCount: 'Количество полок',
                 shelfInfoOuterThick: 'Толщина панелей',
                 shelfInfoShelfThick: 'Толщина полок',
+                shelfInfoDistances: 'Количество расстояний',
                 shelfInfoSpacing: 'Расстояние между полками',
                 shelfPlaceholder: 'Введите параметры для отображения информации',
                 
@@ -1776,6 +1817,7 @@
                 shelfInfoCount: 'Număr de rafturi',
                 shelfInfoOuterThick: 'Grosimea panourilor',
                 shelfInfoShelfThick: 'Grosimea rafturilor',
+                shelfInfoDistances: 'Număr de distanțe',
                 shelfInfoSpacing: 'Distanța dintre rafturi',
                 shelfPlaceholder: 'Introduceți parametrii pentru afișarea informațiilor',
                 
@@ -1892,6 +1934,7 @@
                 shelfInfoCount: 'Number of shelves',
                 shelfInfoOuterThick: 'Panel thickness',
                 shelfInfoShelfThick: 'Shelf thickness',
+                shelfInfoDistances: 'Number of spaces',
                 shelfInfoSpacing: 'Spacing between shelves',
                 shelfPlaceholder: 'Enter parameters to display information',
                 
@@ -2090,6 +2133,7 @@
             setTextById('shelfInfoCountLabel', t.shelfInfoCount);
             setTextById('shelfInfoOuterLabel', t.shelfInfoOuterThick);
             setTextById('shelfInfoShelfLabel', t.shelfInfoShelfThick);
+            setTextById('shelfInfoDistancesLabel', t.shelfInfoDistances);
             setTextById('shelfInfoSpacingLabel', t.shelfInfoSpacing);
             
             // ====== ANGLE CALCULATOR ======
@@ -2170,11 +2214,24 @@
 
         // SUBSCRIPTION MODAL FUNCTIONS
         function showSubscriptionModal() {
+            // Track modal shown
+            if (typeof window.trackSubscription === 'function') {
+                window.trackSubscription('shown');
+            }
+            
             const modal = document.getElementById('subscriptionModal');
             modal.classList.add('active');
         }
 
         function subscribeClicked() {
+            // Firebase Analytics - Track subscription click
+            if (window.logAnalyticsEvent && window.firebaseAnalytics) {
+                window.logAnalyticsEvent(window.firebaseAnalytics, 'subscribe_telegram', {
+                    action: 'clicked',
+                    channel: 'spaziocalc'
+                });
+            }
+            
             // Сохраняем, что пользователь кликнул на подписку
             localStorage.setItem('spazio_subscription_clicked', 'true');
             // Закрываем модальное окно
@@ -2234,6 +2291,13 @@
 
         // Navigation
         function showCalculator(type) {
+            // Firebase Analytics - Track calculator opened
+            if (window.logAnalyticsEvent && window.firebaseAnalytics) {
+                window.logAnalyticsEvent(window.firebaseAnalytics, 'calculator_opened', {
+                    calculator_type: type
+                });
+            }
+            
             // Прокрутка вверх
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
@@ -2311,7 +2375,16 @@
             saveValues();
 
             if (sizeX > 0 && thicknessY > 0 && thicknessY2 > 0 && shelfCount > 0) {
-                const result = (sizeX - 2 * thicknessY - shelfCount * thicknessY2) / (shelfCount + 1);
+                const spacesCount = shelfCount + 1; // Количество расстояний
+                const result = (sizeX - 2 * thicknessY - shelfCount * thicknessY2) / spacesCount;
+                
+                // Firebase Analytics - Track calculation
+                if (window.logAnalyticsEvent && window.firebaseAnalytics) {
+                    window.logAnalyticsEvent(window.firebaseAnalytics, 'calculation_performed', {
+                        calculator: 'shelves',
+                        shelf_count: shelfCount
+                    });
+                }
                 
                 document.getElementById('resultContainer').style.display = 'block';
                 document.getElementById('resultValue').textContent = result.toFixed(1) + ' мм';
@@ -2323,6 +2396,7 @@
                 document.getElementById('shelfInfoCount').textContent = shelfCount + ' шт';
                 document.getElementById('shelfInfoOuter').textContent = thicknessY + ' мм';
                 document.getElementById('shelfInfoShelf').textContent = thicknessY2 + ' мм';
+                document.getElementById('shelfInfoDistances').textContent = spacesCount + ' шт';
                 document.getElementById('shelfInfoSpacing').textContent = result.toFixed(1) + ' мм';
             } else {
                 document.getElementById('resultContainer').style.display = 'none';
@@ -3176,6 +3250,110 @@
             document.getElementById('arcInfoPanel').style.display = 'none';
             document.getElementById('arcPlaceholder').style.display = 'block';
         }
+    </script>
+    
+    <!-- Firebase Analytics -->
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAnalytics, logEvent, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+        // Initialize Firebase
+        function initFirebase() {
+            if (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY_HERE') {
+                console.log('⚠️ Firebase not configured - analytics disabled');
+                console.log('📖 See FIREBASE-SETUP.md for setup instructions');
+                return;
+            }
+
+            try {
+                const app = initializeApp(window.FIREBASE_CONFIG);
+                const analytics = getAnalytics(app);
+                window.analytics = analytics;
+
+                // Track initial page view
+                logEvent(analytics, 'page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                    page_path: window.location.pathname
+                });
+
+                // Set user properties
+                setUserProperties(analytics, {
+                    preferred_language: currentLang || 'ru',
+                    preferred_theme: currentTheme || 'dark'
+                });
+
+                console.log('✅ Firebase Analytics initialized successfully');
+                
+                // Track PWA install prompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    logEvent(analytics, 'pwa_prompt_shown');
+                });
+
+                // Track PWA installation
+                window.addEventListener('appinstalled', () => {
+                    logEvent(analytics, 'pwa_installed');
+                });
+
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
+            }
+        }
+
+        // Analytics helper functions
+        window.trackEvent = function(eventName, params = {}) {
+            if (window.analytics) {
+                logEvent(window.analytics, eventName, params);
+            }
+        };
+
+        window.trackCalculatorOpen = function(calculatorName) {
+            if (window.analytics) {
+                logEvent(window.analytics, 'calculator_opened', {
+                    calculator_name: calculatorName
+                });
+            }
+        };
+
+        window.trackCalculation = function(calculatorName, params = {}) {
+            if (window.analytics) {
+                logEvent(window.analytics, 'calculation_made', {
+                    calculator_name: calculatorName,
+                    ...params
+                });
+            }
+        };
+
+        window.trackSubscription = function(action) {
+            if (window.analytics) {
+                logEvent(window.analytics, action === 'shown' ? 'subscription_modal_shown' : 'subscription_clicked');
+            }
+        };
+
+        window.trackLanguageChange = function(lang) {
+            if (window.analytics) {
+                logEvent(window.analytics, 'language_changed', { language: lang });
+                setUserProperties(window.analytics, { preferred_language: lang });
+            }
+        };
+
+        window.trackThemeChange = function(theme) {
+            if (window.analytics) {
+                logEvent(window.analytics, 'theme_changed', { theme: theme });
+                setUserProperties(window.analytics, { preferred_theme: theme });
+            }
+        };
+
+        window.trackResultCopy = function(calculatorName) {
+            if (window.analytics) {
+                logEvent(window.analytics, 'result_copied', { calculator_name: calculatorName });
+            }
+        };
+
+        // Initialize on load
+        window.addEventListener('load', initFirebase);
     </script>
     
     <script>
