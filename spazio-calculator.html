@@ -3568,45 +3568,47 @@ async function verifyAccessCode() {
 // Привязываем кнопку к функции
 document.querySelector('.subscription-verify-btn').addEventListener('click', verifyAccessCode);
 </script>
-    <script>
-async function verifyCodeFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (!code) return;
+   <script>
+async function checkAccessCode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
 
-    const input = document.getElementById('accessCodeInput');
-    const message = document.getElementById('subscriptionMessage');
-    const loading = document.getElementById('loadingIndicator');
+    if (!code) {
+        alert('❌ Нет кода доступа в URL!');
+        return;
+    }
 
-    input.value = code.toUpperCase();
-    loading.style.display = 'block';
+    // Показываем загрузку
+    const loadingEl = document.getElementById('loadingIndicator');
+    loadingEl.style.display = 'block';
 
     try {
-        const response = await fetch('/api/verify-code', {
+        const response = await fetch('https://spaziocalc.vercel.app/api/verify-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: code.toUpperCase() })
+            body: JSON.stringify({ code })
         });
-        const result = await response.json();
-        loading.style.display = 'none';
+        const data = await response.json();
 
-        if (result.valid) {
-            message.textContent = '✅ Доступ разрешён!';
-            // Скрываем модалку или открываем калькулятор
-            document.getElementById('subscriptionModal').style.display = 'none';
+        loadingEl.style.display = 'none';
+
+        if (data.valid) {
+            alert('✅ Доступ разрешен!');
+            // Здесь можно открыть калькулятор или показать интерфейс
         } else {
-            message.textContent = '❌ ' + (result.error || 'Неверный код');
+            alert(`❌ ${data.error}`);
         }
     } catch (err) {
-        loading.style.display = 'none';
-        message.textContent = '❌ Ошибка проверки кода';
+        loadingEl.style.display = 'none';
         console.error(err);
+        alert('❌ Ошибка при проверке кода!');
     }
 }
 
-// Проверка кода при загрузке страницы
-window.addEventListener('load', verifyCodeFromURL);
+// Проверяем код при загрузке страницы
+window.addEventListener('DOMContentLoaded', checkAccessCode);
 </script>
+
 
 
 </body>
