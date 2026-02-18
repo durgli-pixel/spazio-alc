@@ -3526,5 +3526,48 @@
             });
         }
     </script>
+    <script>
+async function verifyAccessCode() {
+    const codeInput = document.getElementById('accessCodeInput');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const code = codeInput.value.trim().toUpperCase();
+
+    if (!code) {
+        alert('Введите код!');
+        return;
+    }
+
+    // Показываем индикатор загрузки
+    loadingIndicator.style.display = 'block';
+
+    try {
+        const response = await fetch('/api/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+
+        const result = await response.json();
+        console.log('Ответ сервера:', result);
+
+        if (result.valid) {
+            alert('✅ Доступ разрешен');
+            // Скрываем модальное окно
+            document.getElementById('subscriptionModal').style.display = 'none';
+        } else {
+            alert('❌ Неверный код! ' + (result.error || 'Получите код в боте.'));
+        }
+    } catch (err) {
+        console.error('Ошибка запроса:', err);
+        alert('❌ Ошибка сервера. Попробуйте позже.');
+    } finally {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// Привязываем кнопку к функции
+document.querySelector('.subscription-verify-btn').addEventListener('click', verifyAccessCode);
+</script>
+
 </body>
 </html>
