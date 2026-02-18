@@ -77,4 +77,52 @@ async function handleCallback(callbackQuery) {
             await answerCallback(callbackQuery.id, '✅ Подписка подтверждена!');
         } else {
             await sendMessage(chatId,
-                '❌ Вы не подписаны на канал!\n\nСнач
+                '❌ Вы не подписаны на канал!\n\nСначала подпишитесь, затем нажмите "Проверить подписку" снова.',
+                {
+                    inline_keyboard: [
+                        [{ text: '📢 Подписаться на канал', url: CHANNEL_LINK }],
+                        [{ text: '🔄 Проверить ещё раз', callback_data: 'check_subscription' }]
+                    ]
+                }
+            );
+            await answerCallback(callbackQuery.id, '❌ Подписка не найдена');
+        }
+    }
+}
+
+async function checkSubscription(userId) {
+    try {
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHANNEL_ID}&user_id=${userId}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.ok) {
+            const status = data.result.status;
+            return ['creator', 'administrator', 'member'].includes(status);
+        }
+        return false;
+    } catch (error) {
+        console.error('Check subscription error:', error);
+        return false;
+    }
+}
+
+function generateAccessCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'SPAZIO-';
+    for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
+async function sendMessage(chatId, text, reply_markup = null) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    const body = { chat_id: chatId, text, parse_mode: 'HTML' };
+    if (reply_markup) body.reply_markup = reply_markup;
+    await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+}
+
+async function answerCallback(callbackQueryId, text) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`;
+    await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ callback_query_id: callbackQueryId, text }) });
+}
