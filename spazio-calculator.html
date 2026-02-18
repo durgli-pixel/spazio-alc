@@ -3568,6 +3568,46 @@ async function verifyAccessCode() {
 // Привязываем кнопку к функции
 document.querySelector('.subscription-verify-btn').addEventListener('click', verifyAccessCode);
 </script>
+    <script>
+async function verifyCodeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code) return;
+
+    const input = document.getElementById('accessCodeInput');
+    const message = document.getElementById('subscriptionMessage');
+    const loading = document.getElementById('loadingIndicator');
+
+    input.value = code.toUpperCase();
+    loading.style.display = 'block';
+
+    try {
+        const response = await fetch('/api/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code.toUpperCase() })
+        });
+        const result = await response.json();
+        loading.style.display = 'none';
+
+        if (result.valid) {
+            message.textContent = '✅ Доступ разрешён!';
+            // Скрываем модалку или открываем калькулятор
+            document.getElementById('subscriptionModal').style.display = 'none';
+        } else {
+            message.textContent = '❌ ' + (result.error || 'Неверный код');
+        }
+    } catch (err) {
+        loading.style.display = 'none';
+        message.textContent = '❌ Ошибка проверки кода';
+        console.error(err);
+    }
+}
+
+// Проверка кода при загрузке страницы
+window.addEventListener('load', verifyCodeFromURL);
+</script>
+
 
 </body>
 </html>
