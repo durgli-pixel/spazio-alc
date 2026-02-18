@@ -1,8 +1,13 @@
 {
-  "functions": {
-    "api/check-subscription.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
-  }
-}
+     "version": 2
+   }
+```
+4. Commit changes
+
+---
+
+## ✅ После этого:
+
+Vercel задеплоит и API заработает:
+```
+https://spaziocalc.vercel.app/api/check-subscription?user_id=123
