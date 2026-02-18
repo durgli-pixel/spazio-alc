@@ -1,13 +1,3 @@
 {
-     "version": 2
-   }
-```
-4. Commit changes
-
----
-
-## ✅ После этого:
-
-Vercel задеплоит и API заработает:
-```
-https://spaziocalc.vercel.app/api/check-subscription?user_id=123
+  "version": 2
+}
