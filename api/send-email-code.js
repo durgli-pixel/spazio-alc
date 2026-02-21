@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'SPAZIO <onboarding@resend.dev>',
+        from: 'SPAZIO Calculator <noreply@send.spazio.vip>',
         to: [email],
         subject: 'Ваш код доступа SPAZIO Calculator',
         html: getEmailHTML(code)
@@ -84,7 +84,7 @@ function getEmailHTML(code) {
         <div style="font-family:monospace;font-size:28px;letter-spacing:4px;color:#1d1d1f;font-weight:bold">${code}</div>
       </div>
       <p style="color:#666;font-size:15px;margin:24px 0 0">
-        Введите код на сайте<br><strong style="color:#1d1d1f">spaziocalc.vercel.app</strong>
+        Введите код на сайте<br><strong style="color:#1d1d1f">spazio.vip</strong>
       </p>
       <div style="background:#FFF9E6;border-radius:8px;padding:16px;margin:24px 0 0">
         <p style="color:#856404;font-size:13px;margin:0">⏱ Бесплатный триал на 30 дней</p>
