@@ -1,4 +1,4 @@
-const RESEND_API_KEY = 're_7x8GA7BC_75wvyqm6p41Qhn9dxhVWNe2e';
+const RESEND_API_KEY = 're_Mi7NkhRF_JVvSPhztkXvte136JwPkCg9C';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
