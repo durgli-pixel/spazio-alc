@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'SPAZIO Calculator <delivered@ostuahelou.resend.app>',
+        from: 'SPAZIO <onboarding@resend.dev>',
         to: [email],
         subject: 'Ваш код доступа SPAZIO Calculator',
         html: getEmailHTML(code)
