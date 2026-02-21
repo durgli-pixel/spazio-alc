@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "name": "spazio-calculator",
+  "version": "1.0.0",
+  "description": "SPAZIO Calculator - Professional furniture calculator",
+  "private": true
+}
