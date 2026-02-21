@@ -1,0 +1,17 @@
+{
+  "name": "SPAZIO - Мебельный калькулятор",
+  "short_name": "SPAZIO",
+  "description": "Профессиональный калькулятор для мебельщиков",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#FED631",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
